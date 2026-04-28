@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from gestortareas import GestorTareas
+import bcrypt 
 
 app = Flask(__name__)
 
@@ -36,10 +37,17 @@ def registro():
 
         usuario_en_db = db_admin.obtener_usuario_por_gmail(gmail_ingresado)
 
-        if usuario_en_db and usuario_en_db['contraseña'] == password_ingresado:
-            return redirect(url_for('tareas'))
-        else:
-            return "<h3>Correo o contraseña incorrecto, vuelve a intentar.</h3> <a href='/registro'>Volver a intentar</a>"
+        if usuario_en_db:
+            es_valida = bcrypt.checkpw(
+                password_ingresado.encode('utf-8'), 
+                usuario_en_db['contraseña']
+            )
+            
+            if es_valida:
+                return redirect(url_for('tareas'))
+        
+        return "<h3>Correo o contraseña incorrecto =/" \
+        ".</h3> <a href='/registro'>Volver a intentar</a>"
     
     return render_template('registro.html')
 
