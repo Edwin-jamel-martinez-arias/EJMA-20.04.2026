@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError, ConnectionFailure
 from datetime import datetime
+import bcrypt 
 
 class GestorTareas:
     def __init__(self, uri: str):
@@ -20,10 +21,13 @@ class GestorTareas:
 
     def crear_usuario(self, nombre, gmail, contraseña, razon):
         try:
+            salt = bcrypt.gensalt()
+            password_hashed = bcrypt.hashpw(contraseña.encode('utf-8'), salt)
+
             datos_usuario = {
                 "nombre": nombre,
                 "gmail": gmail,
-                "contraseña": contraseña,
+                "contraseña": password_hashed, 
                 "razon": razon,
                 "fecha_registro": datetime.now(),
                 "activo": True
